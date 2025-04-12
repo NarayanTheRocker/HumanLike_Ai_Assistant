@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naru Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Style for BOTH State and Voice select groups in the intro */
+        /* Renamed class for generality */
+        .intro-select-group {
+            margin-top: 15px;
+            margin-bottom: 15px; /* Consistent spacing */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap; /* Allow wrapping on small screens if needed */
+        }
+        .intro-select-group label {
+             margin-bottom: 0;
+             /* Apply styles consistent with dropdown labels */
+             color: var(--text-secondary);
+             font-size: 0.95em;
+             display: flex;
+             align-items: center;
+             gap: 5px;
+             white-space: nowrap; /* Prevent label text wrapping */
+        }
+        .intro-select-group select {
+             /* Apply styles consistent with dropdown selects */
+             padding: 5px 8px;
+             border-radius: 6px;
+             border: 1px solid var(--border-color);
+             background-color: var(--container-bg);
+             color: var(--text-primary);
+             font-size: 0.9em;
+             cursor: pointer;
+             outline: none;
+             /* min-width: 120px; /* Optional: give it a minimum width */
+        }
+         .intro-select-group select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(47, 129, 247, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1><i class="fa-solid fa-brain"></i> Naru Assistant</h1>
+
+            <div class="header-right-controls">
+                <div class="visible-controls">
+                     <div class="control-group voice-gender-group">
+                         <label for="voice-gender-header" class="sr-only"><i class="fa-solid fa-venus-mars"></i> Voice:</label>
+                         <select id="voice-gender-header" title="Select Voice Gender">
+                             <option value="female" selected>Female</option>
+                             <option value="male">Male</option>
+                         </select>
+                     </div>
+                     <div class="control-group">
+                         <button id="mute-button" class="control-button mute-toggle" title="Mute/Unmute Audio">
+                             <i class="fa-solid fa-volume-high"></i>
+                         </button>
+                     </div>
+                </div>
+                <button id="dropdown-toggle-button" class="control-button dropdown-toggle" title="More Settings">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+             <div id="dropdown-controls" class="controls-dropdown">
+                  <div class="control-group">
+                      <label for="state-select-header"><i class="fa-solid fa-map-location-dot"></i> State:</label>
+                      <select id="state-select-header" title="Select Indian State/UT for context">
+                          {% if states %}
+                              {% for state in states %}
+                                  <option value="{{ state }}">{{ state }}</option>
+                              {% endfor %}
+                          {% else %}
+                              <option value="">States unavailable</option>
+                          {% endif %}
+                      </select>
+                  </div>
+                  <div class="control-group">
+                        <label for="voice-gender-dropdown"><i class="fa-solid fa-venus-mars"></i> Voice:</label>
+                        <select id="voice-gender-dropdown" title="Select Voice Gender">
+                            <option value="female" selected>Female</option>
+                            <option value="male">Male</option>
+                        </select>
+                  </div>
+                  <div class="control-group">
+                      <label for="input-mode"><i class="fa-solid fa-keyboard"></i> Mode:</label>
+                      <select id="input-mode">
+                          <option value="text" selected>Text</option>
+                          <option value="voice">Voice</option>
+                      </select>
+                  </div>
+                  <div class="control-group">
+                      <label for="clear-chat-button"><i class="fas fa-trash-alt"></i> Chat:</label>
+                      <button id="clear-chat-button" class="control-button clear-chat" title="Clear Chat History" style="display: none;"> <i class="fas fa-trash-alt"></i> </button>
+                  </div>
+             </div>
+        </header>
+
+        <div class="intro-section" id="intro-section">
+             <p class="intro-text">Hii this is Naru !!</p>
+             <p class="intro-desc"> I'm your friendly AI buddy. Whether you need fashion tips, weather updates, movie suggestions, or just someone to talk to—I’m here for you!</p>
+             <p class="intro-desc">Naru can learn from your inputs and make better decisions. It is meant for providing strong emotional support and assisting with general tasks and activities.</p>
+
+             <div class="intro-select-group">
+                 <label for="state-select-intro"><i class="fa-solid fa-map-location-dot"></i> Select Your State/UT:</label>
+                 <select id="state-select-intro" title="Select Indian State/UT for context">
+                     {% if states %}
+                         {% for state in states %}
+                             <option value="{{ state }}">{{ state }}</option>
+                         {% endfor %}
+                     {% else %}
+                         <option value="">States unavailable</option>
+                     {% endif %}
+                 </select>
+             </div>
+
+             <div class="intro-select-group">
+                <label for="voice-gender-intro"><i class="fa-solid fa-venus-mars"></i> Select Voice:</label>
+                <select id="voice-gender-intro" title="Select Voice Gender">
+                    <option value="female" selected>Female</option>
+                    <option value="male">Male</option>
+                </select>
+            </div>
+
+             <div class="intro-controls">
+                  <p><strong>Customize your experience:</strong></p>
+                  <p>Select your State/UT and Voice Gender above, or using the options in the top dropdown menu.</p>
+                  <p>Use the speaker icon (<i class="fa-solid fa-volume-high"></i>/<i class="fa-solid fa-volume-xmark"></i>) to mute or unmute audio responses.</p>
+                  <p>Use the keyboard/mic icon (<i class="fa-solid fa-keyboard"></i> / <i class="fa-solid fa-microphone"></i>) in the dropdown to switch input mode.</p>
+                  <p>Use the trash icon (<i class="fas fa-trash-alt"></i>) in the dropdown to clear the chat.</p>
+             </div>
+
+             <button id="start-chat-button" class="intro-section button">Start Chat</button>
+        </div>
+
+        <main class="chat-history" id="chat-history" style="display: none;">
+            </main>
+
+        <footer class="input-area" style="display: none;">
+            <button id="record-button" class="control-button voice-button" title="Record Voice Input"><i class="fa-solid fa-microphone"></i></button>
+            <input type="text" id="user-input" placeholder="Ask Naru...">
+            <button id="send-button" class="control-button send-button" title="Send Message"><i class="fa-solid fa-paper-plane"></i></button>
+        </footer>
+
+        <div id="status" class="status-indicator">Ready</div>
+        <audio id="audio-player" style="display:none;"></audio>
+        <p class="copyright-notice">This model is intended for educational purposes only. Do not use for commercial purposes. Copyright © 2025 Narayan.</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- START: State Dropdown Synchronization ---
+            const stateSelectIntro = document.getElementById('state-select-intro');
+            const stateSelectHeader = document.getElementById('state-select-header');
+
+            const syncStateSelects = (sourceSelect, targetSelect) => {
+                // Check if elements exist and if values are different before updating
+                if (sourceSelect && targetSelect && targetSelect.value !== sourceSelect.value) {
+                    targetSelect.value = sourceSelect.value;
+                }
+            };
+
+            if (stateSelectIntro && stateSelectHeader) {
+                stateSelectIntro.addEventListener('change', () => syncStateSelects(stateSelectIntro, stateSelectHeader));
+                stateSelectHeader.addEventListener('change', () => syncStateSelects(stateSelectHeader, stateSelectIntro));
+            } else {
+                console.error("Could not find both state select elements for synchronization.");
+            }
+            // --- END: State Dropdown Synchronization ---
+
+
+            // --- START: Voice Gender Dropdown Synchronization (ADDED/ESSENTIAL) ---
+            const voiceSelectHeader = document.getElementById('voice-gender-header'); // Renamed ID
+            const voiceSelectIntro = document.getElementById('voice-gender-intro');   // New ID
+            const voiceSelectDropdown = document.getElementById('voice-gender-dropdown'); // New ID
+
+            // Function to update the other two voice gender dropdowns
+            const syncVoiceGenderSelects = (sourceSelect) => {
+                const newValue = sourceSelect.value;
+
+                // Update Header select if it's not the source and value differs
+                if (voiceSelectHeader && voiceSelectHeader !== sourceSelect && voiceSelectHeader.value !== newValue) {
+                    voiceSelectHeader.value = newValue;
+                }
+                // Update Intro select if it's not the source and value differs
+                if (voiceSelectIntro && voiceSelectIntro !== sourceSelect && voiceSelectIntro.value !== newValue) {
+                    voiceSelectIntro.value = newValue;
+                }
+                // Update Dropdown select if it's not the source and value differs
+                if (voiceSelectDropdown && voiceSelectDropdown !== sourceSelect && voiceSelectDropdown.value !== newValue) {
+                    voiceSelectDropdown.value = newValue;
+                }
+                // Optional: Add any other function call needed when voice changes
+                // e.g., updateBackendVoiceSetting(newValue);
+            };
+
+            // Add event listeners if all three elements exist
+            if (voiceSelectHeader && voiceSelectIntro && voiceSelectDropdown) {
+                voiceSelectHeader.addEventListener('change', () => syncVoiceGenderSelects(voiceSelectHeader));
+                voiceSelectIntro.addEventListener('change', () => syncVoiceGenderSelects(voiceSelectIntro));
+                voiceSelectDropdown.addEventListener('change', () => syncVoiceGenderSelects(voiceSelectDropdown));
+                 // Optional: Initial sync on load if needed
+                 // syncVoiceGenderSelects(voiceSelectHeader);
+            } else {
+                console.error("Could not find all three voice gender select elements for synchronization.");
+            }
+            // --- END: Voice Gender Dropdown Synchronization ---
+
+
+            // --- Your EXISTING Dropdown Toggle & Clear Button Logic ---
+            const dropdownToggleBtn = document.getElementById('dropdown-toggle-button');
+            const dropdownControls = document.getElementById('dropdown-controls');
+
+            if (dropdownToggleBtn && dropdownControls) {
+                dropdownToggleBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const isVisible = dropdownControls.classList.toggle('visible');
+                    const icon = dropdownToggleBtn.querySelector('i');
+
+                    if (isVisible) {
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                        dropdownToggleBtn.setAttribute('title', 'Hide Settings');
+                    } else {
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                        dropdownToggleBtn.setAttribute('title', 'More Settings');
+                    }
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (dropdownControls && !dropdownControls.contains(event.target) && dropdownToggleBtn && !dropdownToggleBtn.contains(event.target) && dropdownControls.classList.contains('visible')) {
+                        dropdownControls.classList.remove('visible');
+                        const icon = dropdownToggleBtn.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-chevron-up');
+                            icon.classList.add('fa-chevron-down');
+                        }
+                        dropdownToggleBtn.setAttribute('title', 'More Settings');
+                    }
+                });
+
+                 // Clear Chat Button Visibility Logic (Improved group handling)
+                 const chatHistory = document.getElementById('chat-history');
+                 const clearChatButton = document.getElementById('clear-chat-button');
+                 const startChatButton = document.getElementById('start-chat-button');
+                 // Get the parent group for the clear button
+                 const clearChatGroup = clearChatButton ? clearChatButton.closest('.control-group') : null;
+
+                 const checkClearButtonVisibility = () => {
+                     // Ensure all relevant elements exist
+                     if (chatHistory && clearChatButton && clearChatGroup) {
+                         const chatIsVisible = chatHistory.style.display !== 'none';
+                         const chatHasContent = chatHistory.children.length > 0;
+
+                         // Show/hide the entire group
+                         if (chatIsVisible && chatHasContent) {
+                             clearChatGroup.style.display = 'flex';
+                         } else {
+                             clearChatGroup.style.display = 'none';
+                         }
+                     } else if (!clearChatGroup && clearChatButton) {
+                         // Fallback or warning if structure changes
+                         console.warn("Clear chat button found, but not its parent '.control-group'. Visibility might be incorrect.");
+                     }
+                 };
+
+                 if (chatHistory) {
+                     const observer = new MutationObserver(mutations => {
+                         // No need to loop through mutations if any relevant change happens
+                         checkClearButtonVisibility();
+                     });
+                     // Observe style changes on chatHistory and adding/removing direct children
+                     observer.observe(chatHistory, { attributes: true, attributeFilter: ['style'], childList: true, subtree: false });
+                 }
+                 if (startChatButton) {
+                     startChatButton.addEventListener('click', () => {
+                         // Use requestAnimationFrame for better timing after potential layout changes
+                         requestAnimationFrame(checkClearButtonVisibility);
+                     });
+                 }
+                 checkClearButtonVisibility(); // Initial check
+
+            } else {
+                console.error("Dropdown toggle button or dropdown controls container not found!");
+            }
+            // --- End of your existing logic ---
+        });
+    </script>
+    </body>
+</html>
